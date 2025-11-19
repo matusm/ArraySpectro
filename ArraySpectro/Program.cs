@@ -6,12 +6,14 @@ using System.IO;
 
 namespace ArraySpectro
 {
-    internal class Program
+    internal partial class Program
     {
+        private static ThorlabsCct spectro;
+
         static void Main(string[] args)
         {
             CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
-            var spectro = new ThorlabsCct();
+            spectro = new ThorlabsCct();
 
             Console.WriteLine($"Instrument Manufacturer:  {spectro.InstrumentManufacturer}");
             Console.WriteLine($"Instrument Type:          {spectro.InstrumentType}");
@@ -22,29 +24,33 @@ namespace ArraySpectro
             Console.WriteLine($"Max Wavelength:           {spectro.MaximumWavelength:F2} nm");
             Console.WriteLine();
 
-            Console.WriteLine("Estimating optimal integration time...");
-            double optimalIntegrationTime = spectro.GetOptimalExposureTime();
-            Console.WriteLine($"Optimal Integration Time: {optimalIntegrationTime} s");
-            Console.WriteLine();
-            spectro.SetIntegrationTime(optimalIntegrationTime);
+            //Console.WriteLine("Estimating optimal integration time...");
+            //double optimalIntegrationTime = spectro.GetOptimalExposureTime();
+            //Console.WriteLine($"Optimal Integration Time: {optimalIntegrationTime} s");
+            //Console.WriteLine();
+            //spectro.SetIntegrationTime(optimalIntegrationTime);
 
-            int nSamples = 11;
+            spectro.SetIntegrationTime(1.0);
+
+            int nSamples = 1800;
 
             MeasuredOpticalSpectrum reference = new MeasuredOpticalSpectrum(spectro.Wavelengths);
             MeasuredOpticalSpectrum dark = new MeasuredOpticalSpectrum(spectro.Wavelengths);
 
-            spectro.OpenShutter();
-            Helper.UpdateSpectrumUI(reference, nSamples, "Reference Spectrum", spectro);
-            spectro.CloseShutter();
-            Helper.UpdateSpectrumUI(dark, nSamples, "Dark Spectrum", spectro);
+            for (int i = 0; i < 3; i++)
+            {
+                spectro.OpenShutter();
+                OnCallUpdateSpectrum(reference, nSamples, "Reference Spectrum");
+                spectro.CloseShutter();
+                OnCallUpdateSpectrum(dark, nSamples, "Dark Spectrum");
+            }
             spectro.OpenShutter();
 
             OpticalSpectrum corrected = SpecMath.Subtract(reference, dark);
 
-            string csvString = corrected.ToCsvLines();
-            string fileName = $"spectrum_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+            string fileName = $"LowLight_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
             string outPath = Path.Combine(Environment.CurrentDirectory, fileName);
-            File.WriteAllText(outPath, csvString);
+            corrected.WriteToCsvFile(outPath);
 
             Console.WriteLine("done.");
 
