@@ -1,4 +1,5 @@
 ﻿using At.Matus.OpticalSpectrumLib;
+using At.Matus.StatisticPod;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,6 +25,16 @@ namespace ArraySpectro
         {
             string csvString = spectrum.ToCsvLines();
             File.WriteAllText(filePath, csvString);
+        }
+
+        internal static StatisticPod GetSignalStatistics(this IOpticalSpectrum spectrum)
+        {
+            StatisticPod stats = new StatisticPod();
+            for (int i = 0; i < spectrum.NumberOfPoints; i++)
+            {
+                stats.Update(spectrum.DataPoints[i].Signal);
+            }
+            return stats;
         }
 
     }
