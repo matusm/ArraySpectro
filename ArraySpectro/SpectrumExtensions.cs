@@ -1,19 +1,28 @@
 ﻿using At.Matus.OpticalSpectrumLib;
 using At.Matus.StatisticPod;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ArraySpectro
 {
-    internal static class SpectrumExtensions
+    public static class SpectrumExtensions
     {
-        internal static string ToCsvLines(this IOpticalSpectrum spectrum)
+        public static string ToMetaDataString(this IOpticalSpectrum spectrum)
+        {
+            Dictionary<string, string> dict = spectrum.MetaData.Records;
+            StringBuilder sb = new StringBuilder();
+            foreach (var key in dict.Keys)
+            {
+                sb.AppendLine($"{key} = {dict[key]}");
+            }
+            return sb.ToString();
+        }
+
+        public static string ToCsvString(this IOpticalSpectrum spectrum)
         {
             StringBuilder sb = new StringBuilder();
+            sb.AppendLine(spectrum.DataPoints[0].GetCsvHeader());
             for (int i = 0; i < spectrum.NumberOfPoints; i++)
             {
                 sb.AppendLine(spectrum.DataPoints[i].ToCsvLine());
@@ -21,13 +30,15 @@ namespace ArraySpectro
             return sb.ToString();
         }
 
-        internal static void WriteToCsvFile(this IOpticalSpectrum spectrum, string filePath)
+        public static void WriteToCsvFile(this IOpticalSpectrum spectrum, string filePath)
         {
-            string csvString = spectrum.ToCsvLines();
-            File.WriteAllText(filePath, csvString);
+            StringBuilder sb = new StringBuilder();
+            sb.Append(spectrum.ToMetaDataString());
+            sb.Append(spectrum.ToCsvString());
+            File.WriteAllText(filePath, sb.ToString());
         }
 
-        internal static StatisticPod GetSignalStatistics(this IOpticalSpectrum spectrum)
+        public static StatisticPod GetSignalStatistics(this IOpticalSpectrum spectrum)
         {
             StatisticPod stats = new StatisticPod();
             for (int i = 0; i < spectrum.NumberOfPoints; i++)

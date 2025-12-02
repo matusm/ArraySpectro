@@ -37,7 +37,6 @@ namespace ArraySpectro
                 spectrum.UpdateSignal(spectro.GetIntensityData());
                 consoleProgressBar.Report(i + 1, numberSamples);
             }
-            spectrum.Name = $"{message}";
         }
 
         internal static MeasuredOpticalSpectrum OnCallGetSpectrum(int numberSamples, string message)

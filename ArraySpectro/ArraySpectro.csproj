@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="At.Matus.MetaData">
+      <HintPath>..\..\At.Matus.MetaData\At.Matus.MetaData\bin\Release\At.Matus.MetaData.dll</HintPath>
+    </Reference>
     <Reference Include="At.Matus.OpticalSpectrumLib">
       <HintPath>..\..\At.Matus.OpticalSpectrumLib\At.Matus.OpticalSpectrumLib\bin\Release\At.Matus.OpticalSpectrumLib.dll</HintPath>
     </Reference>
